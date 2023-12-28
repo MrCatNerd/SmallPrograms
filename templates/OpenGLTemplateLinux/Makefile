@@ -6,11 +6,11 @@ LIBS = -lglfw -lGLEW -lGLU -lGL
 # Specific flags for different build profiles
 CFLAGS_NORMAL = $(COMMON_CFLAGS) -O2
 CFLAGS_DEBUG = $(COMMON_CFLAGS) -Og -g -fstack-protector
-CFLAGS_RELEASE = $(COMMON_CFLAGS) -O2 -finline-functions -march=native -fno-strict-aliasing
-CFLAGS_FAST = $(COMMON_CFLAGS) -Ofast -finline-functions -march=native \
-    -funroll-loops -ftree-vectorize -fprofile-generate -flto \
-    -ffast-math -fno-math-errno -fuse-linker-plugin -fomit-frame-pointer \
-    -fno-strict-aliasing
+CFLAGS_RELEASE = $(COMMON_CFLAGS) -O3 -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
+    -flto -fuse-linker-plugin
+CFLAGS_FAST = $(COMMON_CFLAGS) -Ofast -march=native -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
+    -flto -fuse-linker-plugin -fprefetch-loop-arrays -ftree-vectorize
+
 
 # Source files and executable
 SRC = main.cpp
