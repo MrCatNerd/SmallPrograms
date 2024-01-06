@@ -22,6 +22,8 @@ EXECUTABLE = bin/main
 .PHONY: r run rund runf runr
 
 # Default target
+default: run-debug
+
 all: normal debug fast release
 
 r: run-debug
