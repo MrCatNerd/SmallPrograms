@@ -1,27 +1,23 @@
 .PHONY: all clean
 
-SHELL = /bin/sh
-CFLAGS = -Wall -Werror
-objects = obj/main.o obj/linked_list.o
+SHELL := /bin/sh
+CC := g++
+CXXFLAGS := -std=c++11 -Wall -Wextra -Werror -pedantic -g -fsanitize=address
+objects := obj/main.o obj/linked_list.o obj/hashmap.o
+executable := bin/main
 
-all: bin/main
-	./bin/main
+all: $(executable)
+	@./$(executable)
 
 clean:
-	rm bin/*
-	rm obj/*.o
+	@rm -rf bin obj
 
-bin/main: $(objects)
-	gcc $(CFLAGS) $(objects) -o bin/main
+$(executable): $(objects) | bin
+	@$(CC) $(CXXFLAGS) $(objects) -o $(executable)
 
-obj/main.o: main.c  obj
-	gcc $(CFLAGS) -c main.c -o obj/main.o
+obj/%.o: %.cpp | obj
+	@$(CC) $(CXXFLAGS) -c $< -o $@
 
-obj/linked_list.o: linked_list.c  obj
-	gcc $(CFLAGS) -c linked_list.c -o obj/linked_list.o
+bin obj:
+	@mkdir -p $@
 
-bin:
-	mkdir -p bin
-
-obj:
-	mkdir -p obj
