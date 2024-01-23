@@ -13,7 +13,6 @@ int main(void) {
     }
 
     // Test
-
     add_value(string_to_int("meow"), 11, &buckets, hashmap_size);
     int result = get_value(string_to_int("meow"), buckets, hashmap_size);
     printf("%d\n", result);
