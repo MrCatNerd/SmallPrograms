@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c99 -Og -g
+LDFLAGS = -lm
 OBJ_DIR = obj
 BIN_DIR = bin
 
@@ -11,17 +12,19 @@ OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
 .PHONY: all clean
 
 all: $(TARGET)
-	touch main.c # to rebuild every time
 	./$(TARGET)
 
 $(TARGET): $(OBJ_FILES) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BIN_DIR) $(OBJ_DIR):
 	mkdir -p $@
+
+main.cpp:
+	touch main.cpp --no-create #to rebuild every time
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
