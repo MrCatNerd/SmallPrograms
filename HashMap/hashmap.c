@@ -22,56 +22,52 @@ unsigned int string_to_int(char *string) {
     return sum;
 }
 
-HashMap *newHashMap(unsigned int hashmap_size) {
-    HashMap *hm = calloc(1, sizeof(HashMap));
+HashMap newHashMap(unsigned int hashmap_size) {
+    HashMap hm;
 
-    hm->buckets = calloc(hashmap_size, sizeof(BucketNode));
-    hm->size = hashmap_size;
+    hm.buckets = calloc(hashmap_size, sizeof(Item));
+    hm.size = hashmap_size;
 
     return hm;
 }
 
 void cleanHashMap(HashMap *hm) {
     for (unsigned int i = 0; i < hm->size; i++) { // free nodes that are linked
-        BucketNode *node = &(hm->buckets[i]);
+        Item *node = hm->buckets[i].next;
 
-        while (node->next != NULL) {
-            BucketNode *next = node->next;
-            free(&node);
+        while (node != NULL) {
+            Item *next = node->next;
+            free(node);
             node = next;
         }
     }
 
-    free(hm->buckets); // free buckets
-    free(hm);          // free hashmap
+    free(hm->buckets); // free hashmap
 }
 
 void remove_value(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
-    BucketNode node = hm->buckets[hash];
-    BucketNode *prev = NULL;
+    Item node = hm->buckets[hash];
+    Item *prev = NULL;
 
     while (node.key != key) {
-        assert(node.next != NULL);
-        node = *node.next;
-
         if (key == node.key) {
             *prev->next = *node.next;
             free(prev);
         }
 
         prev = &node;
+        node = *node.next;
     }
 }
 
 int get_value(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
-    BucketNode node = hm->buckets[hash];
+    Item node = hm->buckets[hash];
 
     while (node.key != key) {
-        assert(node.next != NULL);
         node = *node.next;
     }
 
@@ -82,16 +78,16 @@ void add_value(int key, int value, HashMap *hm) {
     const unsigned int hash = hashkey(key, hm->size);
 
     // get inital hashed node
-    BucketNode *node = &(hm->buckets[hash]);
+    Item *node = &(hm->buckets[hash]);
 
     // find a free node
-    do {
+    while (node->next != NULL) {
         *node = *node->next;
-    } while (node->next != NULL);
+    }
 
     // Create new node on heap
-    BucketNode *prev = node;
-    node = calloc(sizeof(BucketNode), 1);
+    Item *prev = node;
+    node = calloc(sizeof(Item), 1);
     prev->next = node;
 
     // set values

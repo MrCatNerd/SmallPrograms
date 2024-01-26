@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c99 -Og -g
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -Og -g -fdiagnostics-color=auto
 LDFLAGS = -lm
 OBJ_DIR = obj
 BIN_DIR = bin
