@@ -12,6 +12,7 @@ OBJ_FILES = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
 .PHONY: all clean
 
 all: $(TARGET)
+	touch main.c --no-create # to rebuild every time
 	./$(TARGET)
 
 $(TARGET): $(OBJ_FILES) | $(BIN_DIR)
@@ -22,9 +23,6 @@ $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
 
 $(BIN_DIR) $(OBJ_DIR):
 	mkdir -p $@
-
-main.cpp:
-	touch main.cpp --no-create #to rebuild every time
 
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)

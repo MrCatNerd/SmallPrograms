@@ -1,17 +1,17 @@
 #pragma once
 
-typedef struct HashedNode {
-        int key_hash;
+typedef struct BucketNode {
+        int key;
         int value;
-        struct HashedNode *next;
-} HashedNode;
+        struct BucketNode *next;
+} BucketNode;
 
 typedef struct HashMap {
-        struct HashedNode *buckets;
+        struct BucketNode *buckets;
         unsigned int size;
 } HashMap;
 
-HashMap newHashMap(unsigned int hashmap_size);
+HashMap *newHashMap(unsigned int hashmap_size);
 
 void add_value(int key, int value, HashMap *hm);
 

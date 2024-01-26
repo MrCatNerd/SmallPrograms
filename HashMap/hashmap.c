@@ -4,10 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "impl.h"
+#include "hashmap.h"
 
 #define GOLDEN_RATIO 0.6180339887
-
 inline unsigned int hashkey(int key, const unsigned int hashamp_size) {
     float product = key * GOLDEN_RATIO;
     float fraction = product - (int)product; // Fractional part
@@ -23,29 +22,43 @@ unsigned int string_to_int(char *string) {
     return sum;
 }
 
-HashMap newHashMap(unsigned int hashmap_size) {
-    HashMap map;
+HashMap *newHashMap(unsigned int hashmap_size) {
+    HashMap *hm = calloc(1, sizeof(HashMap));
 
-    map.buckets = calloc(hashmap_size, sizeof(HashedNode));
-    map.size = hashmap_size;
+    hm->buckets = calloc(hashmap_size, sizeof(BucketNode));
+    hm->size = hashmap_size;
 
-    return map;
+    return hm;
 }
 
-void cleanHashMap(HashMap *hm) { free(hm->buckets); }
+void cleanHashMap(HashMap *hm) {
+    for (unsigned int i = 0; i < hm->size; i++) { // free nodes that are linked
+        BucketNode *node = &(hm->buckets[i]);
+
+        while (node->next != NULL) {
+            BucketNode *next = node->next;
+            free(&node);
+            node = next;
+        }
+    }
+
+    free(hm->buckets); // free buckets
+    free(hm);          // free hashmap
+}
 
 void remove_value(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
-    HashedNode node = hm->buckets[hash];
+    BucketNode node = hm->buckets[hash];
+    BucketNode *prev = NULL;
 
-    HashedNode *prev = NULL;
-    while (node.key_hash != hash) {
+    while (node.key != key) {
         assert(node.next != NULL);
         node = *node.next;
 
-        if (key == node.key_hash) {
+        if (key == node.key) {
             *prev->next = *node.next;
+            free(prev);
         }
 
         prev = &node;
@@ -55,9 +68,9 @@ void remove_value(int key, HashMap *hm) {
 int get_value(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
-    HashedNode node = hm->buckets[hash];
+    BucketNode node = hm->buckets[hash];
 
-    while (node.key_hash != hash) {
+    while (node.key != key) {
         assert(node.next != NULL);
         node = *node.next;
     }
@@ -69,14 +82,19 @@ void add_value(int key, int value, HashMap *hm) {
     const unsigned int hash = hashkey(key, hm->size);
 
     // get inital hashed node
-    HashedNode *node = &(hm->buckets[hash]);
+    BucketNode *node = &(hm->buckets[hash]);
 
     // find a free node
-    while (node->next != NULL) {
+    do {
         *node = *node->next;
-    }
+    } while (node->next != NULL);
+
+    // Create new node on heap
+    BucketNode *prev = node;
+    node = calloc(sizeof(BucketNode), 1);
+    prev->next = node;
 
     // set values
-    node->key_hash = hash;
+    node->key = key;
     node->value = value;
 }
