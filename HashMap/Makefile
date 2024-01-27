@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c99 -Og -g -fdiagnostics-color=auto
+# CFLAGS = -Wall -Wextra -pedantic -std=c99 -Og -g -fdiagnostics-color=auto
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -O0 -g -fdiagnostics-color=auto # for valgrind cuz -O0
 LDFLAGS = -lm
 OBJ_DIR = obj
 BIN_DIR = bin

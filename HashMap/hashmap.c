@@ -123,6 +123,7 @@ void addItemHashmap(int key, int value, HashMap *hm) {
     // Create new node on heap
     Item *prev = node;
     node = calloc(sizeof(Item), 1);
+    node->next = prev->next;
     prev->next = node;
 
     // set values
