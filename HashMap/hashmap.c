@@ -57,7 +57,7 @@ void resizeHashMap(HashMap *hm, unsigned int hashmap_size) {
         }
     }
 
-    free(hm->buckets); // free old hashmap
+    cleanHashMap(hm);
     hm->buckets = temp.buckets;
     hm->size = temp.size;
 }
@@ -73,17 +73,17 @@ void removeItemHashmap(int key, HashMap *hm) {
 
     const int hash = hashkey(key, hm->size);
 
-    Item node = hm->buckets[hash];
+    Item *node = &(hm->buckets[hash]);
     Item *prev = NULL;
 
-    while (node.key != key) { // find the node
-        if (key == node.key) {
-            *prev->next = *node.next; // link prev to next
-            free(prev);               // free node from heap
+    while (node->key != key) { // find the node
+        if (key == node->key) {
+            prev->next = node->next; // link prev to next
+            free(node);              // free node from heap
         }
 
-        prev = &node;
-        node = *node.next;
+        prev = node;
+        node = node->next;
     }
 }
 
@@ -117,13 +117,13 @@ void addItemHashmap(int key, int value, HashMap *hm) {
 
     // find a free node
     while (node->next != NULL) {
-        *node = *node->next;
+        node = node->next;
     }
 
     // Create new node on heap
     Item *prev = node;
     node = calloc(sizeof(Item), 1);
-    node->next = prev->next;
+    node->next = prev->next; // ik its NULL but just in case
     prev->next = node;
 
     // set values

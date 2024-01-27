@@ -6,7 +6,7 @@
 
 int main(void) {
     // Initialize
-    unsigned int hashmap_size = pow(2, 7); // needs to be a power of 2
+    unsigned int hashmap_size = pow(2, 5); // needs to be a power of 2
     HashMap hm = newHashMap(hashmap_size);
 
     // Test
