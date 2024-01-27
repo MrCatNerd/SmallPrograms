@@ -7,17 +7,18 @@ typedef struct Item {
 } Item;
 
 typedef struct HashMap {
-        struct Item *buckets;
-        unsigned int size;
+        struct Item *buckets; // The bucket list
+        unsigned int size;    // number of bucket pointers
+        unsigned int nodes;   // the actual number of used nodes
 } HashMap;
 
 HashMap newHashMap(unsigned int hashmap_size);
 
-void add_value(int key, int value, HashMap *hm);
+void addItemHashmap(int key, int value, HashMap *hm);
 
-int get_value(int key, HashMap *hm);
+int getValueHashmap(int key, HashMap *hm);
 
-void remove_value(int key, HashMap *hm);
+void removeItemHashmap(int key, HashMap *hm);
 
 unsigned int hashkey(int key, const unsigned int hashmap_size);
 unsigned int string_to_int(char *string);

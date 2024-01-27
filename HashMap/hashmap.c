@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -27,6 +26,7 @@ HashMap newHashMap(unsigned int hashmap_size) {
 
     hm.buckets = calloc(hashmap_size, sizeof(Item));
     hm.size = hashmap_size;
+    hm.nodes = 0;
 
     return hm;
 }
@@ -45,16 +45,41 @@ void cleanHashMap(HashMap *hm) {
     free(hm->buckets); // free hashmap
 }
 
-void remove_value(int key, HashMap *hm) {
+void resizeHashMap(HashMap *hm, unsigned int hashmap_size) {
+    HashMap temp = newHashMap(hashmap_size);
+
+    // transfer items
+    for (unsigned int i = 0; i < hm->size; i++) {
+        Item *node = &(hm->buckets[i]);
+        while (node->next != NULL) {
+            addItemHashmap(node->key, node->value, &temp);
+            node = node->next;
+        }
+    }
+
+    free(hm->buckets); // free old hashmap
+    hm->buckets = temp.buckets;
+    hm->size = temp.size;
+}
+
+void removeItemHashmap(int key, HashMap *hm) {
+
+    --hm->nodes; // :)
+
+    // 75% load factor
+    if (hm->nodes < hm->size * 0.25) {
+        resizeHashMap(hm, hm->size / 2);
+    }
+
     const int hash = hashkey(key, hm->size);
 
     Item node = hm->buckets[hash];
     Item *prev = NULL;
 
-    while (node.key != key) {
+    while (node.key != key) { // find the node
         if (key == node.key) {
-            *prev->next = *node.next;
-            free(prev);
+            *prev->next = *node.next; // link prev to next
+            free(prev);               // free node from heap
         }
 
         prev = &node;
@@ -62,11 +87,13 @@ void remove_value(int key, HashMap *hm) {
     }
 }
 
-int get_value(int key, HashMap *hm) {
+int getValueHashmap(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
+    // get inital hashed node
     Item node = hm->buckets[hash];
 
+    // find the node
     while (node.key != key) {
         node = *node.next;
     }
@@ -74,7 +101,15 @@ int get_value(int key, HashMap *hm) {
     return node.value;
 }
 
-void add_value(int key, int value, HashMap *hm) {
+void addItemHashmap(int key, int value, HashMap *hm) {
+
+    ++hm->nodes; // :)
+
+    // 75% load factor
+    if (hm->nodes > hm->size * 0.75) {
+        resizeHashMap(hm, hm->size * 2);
+    }
+
     const unsigned int hash = hashkey(key, hm->size);
 
     // get inital hashed node

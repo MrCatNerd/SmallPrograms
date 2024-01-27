@@ -11,14 +11,13 @@ int main(void) {
 
     // Test
     for (int n = 0; n < 100; n++) {
-        add_value(n, n * 2, &hm);
+        addItemHashmap(n, n * 2, &hm);
     }
-    add_value(string_to_int("meow"), 123, &hm);
-    int result = get_value(string_to_int("meow"), &hm);
-    // int result = get_value(12, &hm);
+    addItemHashmap(string_to_int("meow"), 123, &hm);
+    int result = getValueHashmap(string_to_int("meow"), &hm);
     printf("%d\n", result);
 
-    remove_value(string_to_int("meow"), &hm);
+    removeItemHashmap(string_to_int("meow"), &hm);
 
     // Heap cleanup
     cleanHashMap(&hm);
