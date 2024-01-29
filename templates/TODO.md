@@ -1,4 +1,4 @@
 # Todos:
 
-- discord.py bot
+- Bevy Rust thingy
 - more things that i forgot

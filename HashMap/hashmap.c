@@ -73,18 +73,20 @@ void removeItemHashmap(int key, HashMap *hm) {
 
     const int hash = hashkey(key, hm->size);
 
-    Item *node = &(hm->buckets[hash]);
-    Item *prev = NULL;
+    Item *node = &(hm->buckets[hash]); // the node to delete
+    Item *prev = NULL;                 // previous node
 
-    while (node->key != key) { // find the node
-        if (key == node->key) {
-            prev->next = node->next; // link prev to next
-            free(node);              // free node from heap
-        }
-
+    // find the node
+    while (node->key != key) {
         prev = node;
         node = node->next;
     }
+
+    if (prev != NULL) {          // if its first node
+        prev->next = node->next; // link prev to next
+    }
+
+    free(node); // free node from heap
 }
 
 int getValueHashmap(int key, HashMap *hm) {
@@ -120,11 +122,13 @@ void addItemHashmap(int key, int value, HashMap *hm) {
         node = node->next;
     }
 
-    // Create new node on heap
-    Item *prev = node;
-    node = calloc(sizeof(Item), 1);
-    node->next = prev->next; // ik its NULL but just in case
-    prev->next = node;
+    if (hm->buckets[hash].key != key) { // if not first
+        // Create new node on heap
+        Item *prev = node;
+        node = calloc(sizeof(Item), 1);
+        node->next = prev->next; // ik its NULL but just in case
+        prev->next = node;
+    }
 
     // set values
     node->key = key;
