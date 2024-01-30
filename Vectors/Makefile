@@ -4,7 +4,7 @@ SHELL := /bin/sh
 # Compiler and flags
 CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -std=c99
-LIBS :=
+LIBS := -lm
 
 # Directories
 OBJ_DIR := obj
@@ -26,7 +26,7 @@ all: $(TARGET)
 
 # Rule to link object files into executable
 $(TARGET): $(OBJ_FILES) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
 
 # Rule to compile source files into object files
 $(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
