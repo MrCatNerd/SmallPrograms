@@ -2,8 +2,8 @@
 
 typedef struct {
         float x, y, z;
-} Vector;
+} Vector3;
 
-Vector newVector(float x, float y, float z);
-Vector normalizeVector(Vector *v);
-Vector fastNormalizeVector(Vector *v);
+Vector3 newVector(float x, float y, float z);
+Vector3 normalizeVector(Vector3 *v);
+Vector3 fastNormalizeVector(Vector3 *v);

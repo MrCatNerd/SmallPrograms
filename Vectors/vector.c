@@ -4,13 +4,13 @@
 
 float fast_inverse_sqrt(float number);
 
-Vector newVector(float x, float y, float z) {
-    Vector v = {x, y, z};
+Vector3 newVector(float x, float y, float z) {
+    Vector3 v = {x, y, z};
     return v;
 }
 
-Vector normalizeVector(Vector *v) {
-    Vector u;
+Vector3 normalizeVector(Vector3 *v) {
+    Vector3 u;
 
     float inv_magnitude = 1 / sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
 
@@ -21,8 +21,8 @@ Vector normalizeVector(Vector *v) {
     return u;
 }
 
-Vector fastNormalizeVector(Vector *v) {
-    Vector u;
+Vector3 fastNormalizeVector(Vector3 *v) {
+    Vector3 u;
 
     float inv_magnitude =
         fast_inverse_sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
@@ -42,7 +42,7 @@ float fast_inverse_sqrt(float number) {
     x2 = number * 0.5f;
     y = number;
     i = *(long *)&y;
-    i = 0x5f3759df - (i >> 1);
+    i = 0x5f375a86 - (i >> 1);
     y = *(float *)&i;
     y = y * (threehalfs - (x2 * y * y));
     return y;
