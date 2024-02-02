@@ -34,7 +34,8 @@ Vector3 fastNormalizeVector(Vector3 *v) {
     return u;
 }
 
-float fast_inverse_sqrt(float number) {
+float fast_inverse_sqrt(
+    float number) { // http://www.lomont.org/papers/2003/InvSqrt.pdf
     long i;
     float x2, y;
     const float threehalfs = 1.5f;
@@ -42,7 +43,7 @@ float fast_inverse_sqrt(float number) {
     x2 = number * 0.5f;
     y = number;
     i = *(long *)&y;
-    i = 0x5f375a86 - (i >> 1);
+    i = 0x5f375a86 - (i >> 1); // a better constant (lower error)
     y = *(float *)&i;
     y = y * (threehalfs - (x2 * y * y));
     return y;

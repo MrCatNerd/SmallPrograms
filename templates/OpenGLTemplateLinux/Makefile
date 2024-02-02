@@ -11,9 +11,8 @@ CFLAGS_RELEASE = $(COMMON_CFLAGS) -O3 -fno-math-errno -fomit-frame-pointer -fno-
 CFLAGS_FAST = $(COMMON_CFLAGS) -Ofast -march=native -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
     -flto -fuse-linker-plugin -fprefetch-loop-arrays -ftree-vectorize
 
-
 # Source files and executable
-SRC = main.cpp
+SRC = $(wildcard *.cpp)
 EXECUTABLE = bin/main
 
 .PHONY: all clean run-normal run-debug run-fast run-release
@@ -35,10 +34,6 @@ runr: run-release
 # Create bin directory
 bin:
 	mkdir -p bin
-
-main.cpp:
-	touch main.cpp --no-create
-
 
 # Build rules with lowercase as first argument and uppercase as second argument
 define build_rule
@@ -66,5 +61,4 @@ endef
 $(foreach target, normal debug fast release, $(eval $(call clean_rule,$(target))))
 
 clean: clean-normal clean-debug clean-fast clean-release
-
 
