@@ -12,10 +12,10 @@
 #endif
 
 // Prototypes
-static void framebuffer_size_callback(GLFWwindow *window, int width,
-                                      int height);
+static inline void framebuffer_size_callback(GLFWwindow *window, int width,
+                                             int height);
 
-static void processInput(GLFWwindow *window);
+static inline void processInput(GLFWwindow *window);
 
 static unsigned int CreateShader(std::string shaderSource, int type);
 
@@ -172,12 +172,12 @@ int main(void) {
     return 0;
 }
 
-static void framebuffer_size_callback(GLFWwindow *window, int width,
-                                      int height) {
+static inline void framebuffer_size_callback(GLFWwindow *window, int width,
+                                             int height) {
     glViewport(0, 0, width, height);
 }
 
-static void processInput(GLFWwindow *window) {
+static inline void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) ==
         GLFW_PRESS) // Press escape to exit program
         glfwSetWindowShouldClose(window, true);

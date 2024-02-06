@@ -9,18 +9,28 @@
 
 int main(void) {
     // Initialize
-    HashMap hm = newHashMap(pow(2, 4)); // needs to be a power of 2
+    HashMap hm = createHashMap(pow(2, 4)); // needs to be a power of 2
 
     // Test
-    addItemHashmap(string_to_int("meow"), 93232, &hm);
+    int i = 12;
+    while (--i) {
+        hashMapPut(i, 93232, &hm);
+    }
 
-    // removeItemHashmap(string_to_int("meow"), &hm);
+    hashMapPut(stringToInt("meow"), 93232, &hm);
 
-    unsigned long hm_size_bytes = getHashMapSize(&hm);
+    // removeItemHashmap(stringToInt("meow"), &hm);
+
+    unsigned long hm_size_bytes = hashMapSize(&hm);
+    printf("%lu\n", hm_size_bytes);
+
+    hashMapResize(&hm, pow(2, 6));
+
+    hm_size_bytes = hashMapSize(&hm);
     printf("%lu\n", hm_size_bytes);
 
     // Heap cleanup
-    cleanHashMap(&hm);
+    hashMapClean(&hm);
 
     printf("Program ended\n");
 

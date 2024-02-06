@@ -6,33 +6,32 @@
 #include "hashmap.h"
 
 #define GOLDEN_RATIO 0.6180339887
+/**
+ * @brief A hashing function using the multiplication method
+ *
+ * @param key
+ * @param hashamp_size
+ * @return unsigned int
+ */
 unsigned int hashkey(int key, const unsigned int hashamp_size) {
-    /*
-     * A hashing function using the multiplication method
-     */
-
     float product = key * GOLDEN_RATIO;
     float fraction = product - (int)product; // Fractional part
     return (unsigned int)(hashamp_size * fraction);
 }
 
-unsigned int string_to_int(const char *string) {
-    /*
-     * Converts a string to an unsigned int by summing up its ASCII values
-     */
+unsigned int stringToInt(const char *string) {
 
     unsigned int sum = 1;
-    for (int i = 0; i < (int)strlen(string); i++) {
+
+    unsigned int i = strlen(string);
+    while (--i) {
         sum += (int)string[i];
     }
 
     return sum;
 }
 
-HashMap newHashMap(unsigned int hashmap_size) {
-    /*
-     * Creates a new hashmap
-     */
+HashMap createHashMap(unsigned int hashmap_size) {
 
     HashMap hm;
 
@@ -43,11 +42,7 @@ HashMap newHashMap(unsigned int hashmap_size) {
     return hm;
 }
 
-void cleanHashMap(HashMap *hm) {
-    /*
-     * Cleans the hashmap by freeing all heap allocated memory
-     */
-
+void hashMapClean(HashMap *hm) {
     for (unsigned int i = 0; i < hm->size; i++) { // free nodes that are linked
         Item *node = hm->buckets[i].next;
 
@@ -61,41 +56,59 @@ void cleanHashMap(HashMap *hm) {
     free(hm->buckets); // free hashmap
 }
 
-void resizeHashMap(HashMap *hm, unsigned int hashmap_size) {
-    /*
-     * Resizes the hashmap by recalculating and reallocating the hashmap values
-     * automatically frees the old buckets
-     */
+void hashMapResize(HashMap *hm, unsigned int hashmap_size) {
+    Item *buckets = calloc(sizeof(Item), hashmap_size);
 
-    HashMap temp = newHashMap(hashmap_size);
-
-    // transfer items
     for (unsigned int i = 0; i < hm->size; i++) {
         Item *node = &(hm->buckets[i]);
         while (node->next != NULL) {
-            addItemHashmap(node->key, node->value, &temp);
-            node = node->next;
+            Item *next = node->next;
+
+            // recalculate node position
+            const unsigned int hash = hashkey(node->key, hashmap_size);
+
+            // find free node
+            Item *add_node = &(buckets[hash]);
+            bool first = true;
+
+            while (node->next != NULL) {
+                node = node->next;
+                first = false;
+            }
+
+            if (!first) {
+                add_node->next = calloc(sizeof(Item), 1);
+                add_node->next->key = node->key;
+                add_node->next->value = node->value;
+            } else {
+                add_node->key = node->key;
+                add_node->value = node->value;
+            }
+
+            free(node);
+            node = next;
         }
     }
 
-    cleanHashMap(hm); // cleans only buckets
-    hm->buckets = temp.buckets;
-    hm->size = temp.size;
-    hm->nodes = temp.nodes;
+    // number of nodes stays the same so no need to recalculate
+
+    // clean buckets
+    free(hm->buckets);
+    hm->buckets = buckets;
+
+    // change size thingy
+    hm->size = hashmap_size;
 }
 
-void removeItemHashmap(int key, HashMap *hm) {
-    /*
-     * Remove a specific item from the hashmap
-     */
-
-    --hm->nodes; // :)
+void hashMapRemove(int key,
+                   HashMap *hm) { // TODO: fix that shitty code
+    --hm->nodes;                  // :)
 
     printf("%d\n", hm->size);
 
     // 75% load factor
     if (hm->nodes < hm->size * 0.25) {
-        resizeHashMap(hm, hm->size / 2);
+        hashMapResize(hm, hm->size / 2);
     }
 
     printf("%d\n", hm->size);
@@ -137,17 +150,17 @@ int getValueHashmap(int key, HashMap *hm) {
     const int hash = hashkey(key, hm->size);
 
     // get inital hashed node
-    Item node = hm->buckets[hash];
+    Item *node = &(hm->buckets[hash]);
 
     // find the node
-    while (node.key != key) {
-        node = *node.next;
+    while (node->key != key) {
+        node = node->next;
     }
 
-    return node.value;
+    return node->value;
 }
 
-void addItemHashmap(int key, int value, HashMap *hm) {
+void hashMapPut(int key, int value, HashMap *hm) {
     /*
      * Add an item to the hashmap
      */
@@ -156,46 +169,45 @@ void addItemHashmap(int key, int value, HashMap *hm) {
 
     // 75% load factor
     if (hm->nodes > hm->size * 0.75) {
-        resizeHashMap(hm, hm->size * 2);
+        hashMapResize(hm, hm->size * 2);
     }
 
     const unsigned int hash = hashkey(key, hm->size);
 
-    // get inital hashed node
+    // find free node
     Item *node = &(hm->buckets[hash]);
+    bool first = true;
 
-    // find a free node
     while (node->next != NULL) {
         node = node->next;
+        first = false;
     }
 
-    if (hm->buckets[hash].key != key) { // if not first
-        // Create new node on heap
-        Item *prev = node;
-        node = calloc(sizeof(Item), 1);
-        node->next = prev->next; // ik its NULL but just in case
-        prev->next = node;
+    if (!first) {
+        node->next = calloc(sizeof(Item), 1);
+        node->next->key = key;
+        node->next->value = value;
+    } else {
+        node->key = key;
+        node->value = value;
     }
-
-    // set values
-    node->key = key;
-    node->value = value;
 }
 
-unsigned long getHashMapSize(HashMap *hm) {
+unsigned long hashMapSize(HashMap *hm) {
     /*
-     * Calculate the amount of bytes used by the hashmap in memory
+     * Calculates the amount of bytes used by the hashmap in memory (both heap
+     * and stack)
      */
 
-    unsigned long hm_size_bytes = sizeof(HashMap) + sizeof(*hm->buckets);
+    unsigned long hm_size_bytes = sizeof(*hm);
     // unsigned long hm_size_bytes = sizeof(hm);
 
-    for (unsigned int i = 0; i < hm->size; i++) {
+    unsigned int i = hm->size; // looks cleaner
+    while (--i) {
         Item *node = &(hm->buckets[i]);
 
-        while (node->next != NULL) {
+        while (node->next) {
             hm_size_bytes += sizeof(*node);
-            node = node->next;
         }
     }
 

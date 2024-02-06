@@ -1,4 +1,7 @@
-#=============================================================================
+#============================================================================#
+#                              OpenGL on linux                               #
+#============================================================================#
+
 # Compiler and common flags
 CXX = g++
 
@@ -19,6 +22,11 @@ CFLAGS_RELEASE = $(COMMON_CFLAGS) -O3 -fno-math-errno -fomit-frame-pointer -fno-
 # Fast but unstable for release
 CFLAGS_FAST = $(COMMON_CFLAGS) -Ofast -march=native -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
     -flto -fuse-linker-plugin -fprefetch-loop-arrays -ftree-vectorize
+#=============================================================================
+# Set environment variables for the build.
+
+# The shell in which to execute make rules.
+SHELL = /bin/sh
 
 #=============================================================================
 # Source files and executable
@@ -26,7 +34,7 @@ SRC = $(wildcard *.cpp)
 EXECUTABLE = bin/main
 
 #=============================================================================
-# Default target
+# Default target rule
 default: run-debug
 .PHONY: default
 
@@ -35,7 +43,7 @@ all: normal debug fast release
 .PHONY: all
 
 #=============================================================================
-# Build rules
+# Build target rules
 define build_rule
 $(1): bin $(SRC)
 	$$(CXX) $($(2)) $(SRC) -o $$(EXECUTABLE)_$(1) $$(LIBS)
@@ -44,7 +52,7 @@ endef
 $(foreach target, normal debug fast release, $(eval $(call build_rule,$(target),CFLAGS_$(shell echo $(target) | tr '[:lower:]' '[:upper:]'))))
 
 #=============================================================================
-# Run rules
+# Run target rules
 define run_rule
 run-$(1): $(1)
 	./$$(EXECUTABLE)_$(1)
