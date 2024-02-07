@@ -1,3 +1,5 @@
+# TODO: cmake style ordering and comments thingy
+
 # Specify the shell explicitly
 SHELL := /bin/sh
 
