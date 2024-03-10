@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 /**
  * @class Item
  * @brief A Bucket / Item implementation for a hashmap
@@ -12,25 +14,18 @@ typedef struct Item {
 } Item;
 
 /**
- * @class HashMap
- * @brief HashMap data structure
- * @see createHashMap()
- * @see hashMapPut()
- * @see hashMapGet()
- * @see hashMapRemove()
- * @see hashMapSize()
- * @see hashMapRemove()
- * @see hashMapResize()
- * @see hashMapClean()
+ * @brief HashMap implementation
  */
-typedef struct HashMap {      // bucket = node = item
-        struct Item *buckets; // The bucket list
-        unsigned int size;    // number of bucket pointers
-        unsigned int nodes;   // the actual number of USED buckets
+typedef struct {           // bucket = node = item
+        Item *buckets;     // The bucket list
+        unsigned int size; // number of bucket pointers
+        unsigned int used; // the actual number of USED buckets
 } HashMap;
 
 /**
- * @brief Creates a new hashmap (Must be cleaned later cuz heap)
+ * @brief Create a new hashmap (Must be cleaned later cuz heap)
+ *
+ * @see hashMapClean
  *
  * @param hashmap_size
  * @return HashMap
@@ -38,13 +33,13 @@ typedef struct HashMap {      // bucket = node = item
 HashMap createHashMap(unsigned int hashmap_size);
 
 /**
- * @brief Create a new item
+ * @brief Put a new item in the hashmap
  *
  * @param key
  * @param value
  * @param hm
  */
-void hashMapPut(int key, int value, HashMap *hm);
+void hashMapPut(int key, int value, HashMap *hm, bool no_resize);
 
 /**
  * @brief Get the value of an item
@@ -75,7 +70,7 @@ void hashMapResize(HashMap *hm, unsigned int hashmap_size);
  * @brief Converts a string to an unsigned int by summing up its ASCII values
  *
  * @param string
- * @return The ASCII sum
+ * @return The ASCII value sum
  */
 unsigned int stringToInt(const char *string);
 
@@ -87,9 +82,8 @@ unsigned int stringToInt(const char *string);
 void hashMapClean(HashMap *hm);
 
 /**
- * @brief Returns the size of the hashmap in memory, heap included
+ * @brief self explanatory
  *
  * @param hm
- * @return The size in bytes
  */
 unsigned long hashMapSize(HashMap *hm);

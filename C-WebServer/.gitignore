@@ -1,5 +1,9 @@
-# Custom
-bin/
+### custom
+bin
+obj
+.cache
+compile_commands.json
+###
 
 # Prerequisites
 *.d

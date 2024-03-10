@@ -67,7 +67,7 @@ int main(void) {
 
     LOG("Initialized OpenGL\nOpenGL Version: " << glGetString(GL_VERSION));
 
-    LOG("Starting generating lil triangle");
+    LOG("Starting to generate lil triangle");
     // Build and compile shader program
     LOG("Creating a shader program");
     std::string vertexShaderSource =

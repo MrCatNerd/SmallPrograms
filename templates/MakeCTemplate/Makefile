@@ -1,48 +1,90 @@
-# TODO: cmake style ordering and comments thingy
+# Compiler and common flags
+CXX = g++
 
-# Specify the shell explicitly
-SHELL := /bin/sh
+# Specific flags for different build profiles
+COMMON_CFLAGS = -Wall -fdiagnostics-color=auto -Iinclude
+LIBS =
 
-# Compiler and flags
-CC := gcc
-CFLAGS := -Wall -Wextra -pedantic -std=c99
-LIBS :=
+# Just a normal thingy
+CFLAGS_NORMAL = $(COMMON_CFLAGS) -O2
+
+# For debugging
+CFLAGS_DEBUG = $(COMMON_CFLAGS) -Og -g -fstack-protector
+
+# Optimized for release
+CFLAGS_RELEASE = $(COMMON_CFLAGS) -O3 -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
+    -flto -fuse-linker-plugin
+
+# Fast but unstable for release
+CFLAGS_FAST = $(COMMON_CFLAGS) -Ofast -march=native -fno-math-errno -fomit-frame-pointer -fno-strict-aliasing \
+    -flto -fuse-linker-plugin -fprefetch-loop-arrays -ftree-vectorize
+#=============================================================================
+# Set environment variables for the build.
+
+# The shell in which to execute make rules.
+SHELL = /bin/sh
+
+#=============================================================================
+# Source files and executable
+SRC = $(wildcard src/*.c)
+EXECUTABLE = bin/main
+
+#=============================================================================
+# Default target rule
+default: run-debug
+.PHONY: default
+
+# Build all
+all: normal debug fast release
+.PHONY: all
+
+#=============================================================================
+# Build target rules
+define build_rule
+$(1): bin $(SRC)
+	$$(CXX) $($(2)) $(SRC) -o $$(EXECUTABLE)_$(1) $$(LIBS)
+endef
+
+$(foreach target, normal debug fast release, $(eval $(call build_rule,$(target),CFLAGS_$(shell echo $(target) | tr '[:lower:]' '[:upper:]'))))
+
+#=============================================================================
+# Run target rules
+define run_rule
+run-$(1): $(1)
+	./$$(EXECUTABLE)_$(1)
+endef
+
+$(foreach target, normal debug fast release, $(eval $(call run_rule,$(target))))
+
+.PHONY: run-normal run-debug run-fast run-release
+
+# Run aliases
+r: run-debug
+run: run-normal
+rund: run-debug
+runf: run-fast
+runr: run-release
+.PHONY: r run rund runf runr
+
+#=============================================================================
+# Clean rules
+define clean_rule
+clean-$(1):
+	rm -f $$(EXECUTABLE)_$(1)
+endef
+
+$(foreach target, normal debug fast release, $(eval $(call clean_rule,$(target))))
+
+clean:
+	rm -rf bin
+
+.PHONY: clean clean-normal clean-debug clean-fast clean-release
+
+#=============================================================================
+# Create stuff if not existing
 
 # Directories
-OBJ_DIR := obj
-BIN_DIR := bin
-TARGET := $(BIN_DIR)/main
+bin:
+	mkdir -p bin
 
-# Find source and object files
-SRC_FILES := $(wildcard *.c)
-OBJ_FILES := $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
-
-# Phony targets
-.PHONY: all clean run
-
-# Default target
-.DEFAULT_GOAL := all
-
-# Rule to build all
-all: $(TARGET)
-
-# Rule to link object files into executable
-$(TARGET): $(OBJ_FILES) | $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
-
-# Rule to compile source files into object files
-$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Rule to create directories
-$(BIN_DIR) $(OBJ_DIR):
-	mkdir -p $@
-
-# Clean target
-clean:
-	-rm -rf $(OBJ_DIR) $(BIN_DIR)
-
-# Run target
-run: $(TARGET)
-	./$(TARGET)
 

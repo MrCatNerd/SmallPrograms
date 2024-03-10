@@ -1,7 +1,7 @@
-# Ignore compiled binaries and executables
 /bin/
-/obj/
-
-# Ignore object files
+/lib/
+/.cache/
+.compile_commands.json
 *.o
+*.so
 
