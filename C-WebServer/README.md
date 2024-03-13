@@ -26,5 +26,5 @@ make clean; bear -- make all
 
 ---
 
-## TOOD
+## TODO
 forks and multi-threading and stuff

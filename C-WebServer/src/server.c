@@ -1,16 +1,29 @@
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define PORT 8080
 #define BUFFER_SIZE 1024
 
 static char *readfile(const char *path);
 
-int main() {
+int main(int argc, char *argv[]) { // TODO: arg argv for port and ip
+
+    unsigned int port = 8080;                        // default
+    unsigned int ip_thingy = inet_addr("127.0.0.1"); // default
+    char ip_stringy[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &ip_thingy, ip_stringy, INET_ADDRSTRLEN);
+
+    if (argc >= 2) {
+        port = atoi(argv[1]);
+    }
+    if (argc >= 3) {
+        ip_thingy = inet_addr(argv[2]);
+    }
+
     printf("Running the server\n");
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -21,8 +34,11 @@ int main() {
 
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY; // INADD_ANY is 0.0.0.0
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr =
+        INADDR_ANY; // assign any available IP address on the machine
+    // server_addr.sin_addr.s_addr = ip_thingy;
+
+    server_addr.sin_port = htons(port);
     if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) <
         0) {
         perror("[socket] error: bind");
@@ -36,7 +52,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Listening for connections...\n");
+    printf("Listening for connections on %s:%d\n", ip_stringy, port);
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
 
@@ -74,16 +90,15 @@ int main() {
                 filename = "/website/index.html"; // I still add / because its
                                                   // getting terminated later
 
-            char
-                token_filename[strlen(filename) + 1]; // copy the URI because up
-                                                      // annoying strtok stuff
+            char token_filename[strlen(filename) + 1]; // copy the URI because
+                                                       // annoying strtok stuff
             strcpy(token_filename, filename);
 
             strtok((char *)token_filename, ".");
             const char *filetype = strtok(NULL, ".");
 
             if (filetype == NULL)
-                filetype = "text";
+                filetype = "plain";
 
             printf("filetype: %s\n", filetype);
 
